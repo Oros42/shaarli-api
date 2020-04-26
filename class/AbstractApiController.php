@@ -1,168 +1,169 @@
 <?php
 
-abstract class AbstractApiController {
+abstract class AbstractApiController
+{
 
-	/**
-	 * Get requested action
-	 */
-	protected function getRequestAction() {
+    /**
+     * Get requested action
+     */
+    protected function getRequestAction()
+    {
+        if (isset($_SERVER['PATH_INFO'])) {
+            $action = trim($_SERVER['PATH_INFO'], '/'); // secure?
+            return $action;
+        }
+    }
 
-		if( isset($_SERVER['PATH_INFO']) ) {
+    /**
+     * Get requested method
+     */
+    protected function getRequestMethod()
+    {
+        return isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+    }
 
-			$action = trim($_SERVER['PATH_INFO'], '/'); // secure?
-			return $action;
-		}
-	}
+    /**
+     * Send error message
+     * @param string message
+     * @param int http_code
+     */
+    protected function error($message, $http_code = null)
+    {
 
-	/**
-	 * Get requested method
-	 */
-	protected function getRequestMethod() {
-		return isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
-	}
+        // TODO use good http code
 
-	/**
-	 * Send error message
-	 * @param string message
-	 * @param int http_code
-	 */
-	protected function error( $message, $http_code = null ) {
+        $this->outputJSON(array('error' => $message));
+    }
 
-		// TODO use good http code
+    /**
+     * Output results as Json
+     * @param array results
+     * @param bool pretty
+     */
+    protected function outputJSON($results, $pretty = false)
+    {
+try{
+        // Petty JSON
+        if ($pretty) {
+            $json = json_encode($results, JSON_PRETTY_PRINT|JSON_PARTIAL_OUTPUT_ON_ERROR);
+        } else {
+            $json = json_encode($results, JSON_PARTIAL_OUTPUT_ON_ERROR);
+        }
+}catch(\Exception $e){
+	$json = json_encode(array('error'=>'json'));
+}
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Content-type: application/json');
+	echo $json;
 
-		$this->outputJSON(array('error' => $message));
-	}
+        exit();
+    }
 
-	/**
-	 * Output results as Json
-	 * @param array results
-	 * @param bool pretty
-	 */
-	protected function outputJSON( $results, $pretty = false ) {
+    /**
+     * Create OPML formated file
+     */
+    protected function outputOPML($feeds)
+    {
+        header('Content-type: application/x-xml; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="subscriptions.opml"');
 
-		header('Cache-Control: no-cache, must-revalidate');
-		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-		header('Content-type: application/json');
+        // Code from: https://github.com/pfeff/opml.php
+        $xml = new XMLWriter();
+        $xml->openURI('php://output');
 
-		// Petty JSON
-		if( $pretty ) {
+        $xml->startDocument('1.0', 'UTF-8');
+        $xml->startElement('opml');
+        $xml->writeAttribute('version', '2.0');
 
-			echo json_encode($results, JSON_PRETTY_PRINT);
-		}
-		else {
+        // Header
+        $xml->startElement('head');
+        $xml->writeElement('title', 'Shaarli API OPML');
+        $xml->writeElement('dateModified', date("D, d M Y H:i:s T"));
+        $xml->endElement();
 
-			echo json_encode($results);				
-		}
+        // Body
+        $xml->startElement('body');
 
-		exit();
-	}
+        foreach ($feeds as $feed) {
+            $xml->startElement('outline');
+            $xml->writeAttribute('text', $feed['title']);
+            $xml->writeAttribute('htmlUrl', $feed['link']);
+            $xml->writeAttribute('xmlUrl', $feed['url']);
+            $xml->endElement();
+        }
 
-	/**
-	 * Create OPML formated file
-	 */
-	protected function outputOPML( $feeds ) {
+        $xml->endElement();
 
-		header('Content-type: application/x-xml; charset=UTF-8');
-		header('Content-Disposition: attachment; filename="subscriptions.opml"');
+        $xml->endElement();
+        $xml->endDocument();
 
-		// Code from: https://github.com/pfeff/opml.php
-		$xml = new XMLWriter();
-		$xml->openURI('php://output');
+        $xml->flush();
+    }
 
-		$xml->startDocument('1.0', 'UTF-8');
-		$xml->startElement('opml');
-		$xml->writeAttribute('version', '2.0');
+    /**
+     * Output as RSS
+     * @param entries
+     * @param config
+     */
+    protected function outputRSS($entries, $config)
+    {
+        header('Content-type: application/rss+xml; charset=UTF-8');
+        
+        // Inspired from http://www.phpntips.com/xmlwriter-2009-06/
+        $xml = new XMLWriter();
 
-		// Header
-		$xml->startElement('head');
-		$xml->writeElement('title', 'Shaarli API OPML');
-		$xml->writeElement('dateModified', date("D, d M Y H:i:s T"));
-		$xml->endElement();
+        // Output directly to the user
+        $xml->openURI('php://output');
+        $xml->startDocument('1.0');
+        $xml->setIndent(2);
+        //rss
+        $xml->startElement('rss');
+        $xml->writeAttribute('version', '2.0');
+        $xml->writeAttribute('xmlns:atom', 'http://www.w3.org/2005/Atom');
 
-		// Body
-		$xml->startElement('body');
+        //channel
+        $xml->startElement('channel');
 
-			foreach ($feeds as $feed) {
+        // title, desc, link, date
+        $xml->writeElement('title', $config['title']);
+        // $xml->writeElement('description', $config['description']);
+        // $xml->writeElement('link', 'http://www.example.com/rss.hml');
+        $xml->writeElement('pubDate', date('r'));
 
-			    $xml->startElement('outline');
-			    $xml->writeAttribute('text', $feed['title']);
-			    $xml->writeAttribute('htmlUrl', $feed['link']);
-			    $xml->writeAttribute('xmlUrl', $feed['url']);
-			    $xml->endElement();
-			}
+        if (!empty($entries)) {
+            foreach ($entries as $entry) {
 
-		$xml->endElement();
+                // item
+                $xml->startElement('item');
+                $xml->writeElement('title', $entry['title']);
+                $xml->writeElement('link', $entry['permalink']);
+                $xml->startElement('description');
+                $xml->writeCData($entry['content']);
+                $xml->endElement();
+                $xml->writeElement('pubDate', date('r', strtotime($entry['date'])));
 
-		$xml->endElement();
-		$xml->endDocument();
+                // category
+                // $xml->startElement('category');
+                // $xml->writeAttribute('domain', 'http://www.example.com/cat1.htm');
+                // $xml->text('News');
+                // $xml->endElement();
 
-		$xml->flush();
-	}
+                // end item
+                $xml->endElement();
+            }
+        }
 
-	/**
-	 * Output as RSS
-	 * @param entries
-	 * @param config
-	 */
-	protected function outputRSS( $entries, $config ) {
+        // end channel
+        $xml->endElement();
 
-		header('Content-type: application/rss+xml; charset=UTF-8');
-		
-		// Inspired from http://www.phpntips.com/xmlwriter-2009-06/
-		$xml = new XMLWriter();
+        // end rss
+        $xml->endElement();
 
-		// Output directly to the user
-		$xml->openURI('php://output');
-		$xml->startDocument('1.0');
-		$xml->setIndent(2);
-		//rss
-		$xml->startElement('rss');
-		$xml->writeAttribute('version', '2.0');
-		$xml->writeAttribute('xmlns:atom', 'http://www.w3.org/2005/Atom');
+        // end doc
+        $xml->endDocument();
 
-		//channel
-		$xml->startElement('channel');
-
-		// title, desc, link, date
-		$xml->writeElement('title', $config['title']);
-		// $xml->writeElement('description', $config['description']);
-		// $xml->writeElement('link', 'http://www.example.com/rss.hml');
-		$xml->writeElement('pubDate', date('r'));
-
-		if( !empty($entries) ) {
-
-			foreach( $entries as $entry ) {
-
-				// item
-				$xml->startElement('item');
-				$xml->writeElement('title', $entry['title']);
-				$xml->writeElement('link', $entry['permalink']);
-				$xml->startElement('description');
-				$xml->writeCData($entry['content']);
-				$xml->endElement();
-				$xml->writeElement('pubDate', date('r', strtotime($entry['date'])));
-
-				// category
-				// $xml->startElement('category');
-				// $xml->writeAttribute('domain', 'http://www.example.com/cat1.htm');
-				// $xml->text('News');
-				// $xml->endElement();
-
-				// end item
-				$xml->endElement();
-			}	
-		}
-
-		// end channel
-		$xml->endElement();
-
-		// end rss
-		$xml->endElement();
-
-		// end doc
-		$xml->endDocument();
-
-		// flush
-		$xml->flush();
-	}
+        // flush
+        $xml->flush();
+    }
 }

@@ -40,12 +40,14 @@ define('FAVICON_CACHE_DURATION', 3600*24*30);
 // Synchronisation de la liste des shaarlis avec d'autre shaarli-api ou export au format JSON
 function shaarli_api_nodes() {
 	return array(
-		// Nexen
-		//'https://nexen.mkdir.fr/shaarli-api/feeds',
-		// Porneia (http://porneia.free.fr/pub/bazaar/shaarli_online.html)
-		// 'https://nexen.mkdir.fr/dropbox/porneia.json',
 		// Arthur Hoaro
-		'http://river.hoa.ro/api/'
+		'https://river.hoa.ro/api/feeds',
+
+		// Nexen
+		'https://nexen.netk.fr/shaarli-api/feeds',
+
+        // Oros (default disabled, already use OPML in shaarli_opml_files() )
+        // 'https://ecirtam.net/shaarli-api/feeds',
 	);
 }
 
@@ -54,8 +56,13 @@ function shaarli_opml_files() {
 	return array(
 		// Oros OPML
 		'https://raw.githubusercontent.com/Oros42/shaarlis_list/master/shaarlis.opml',
-		/* ou 'https://ecirtam.net/find_shaarlis/out/shaarlis.opml' */
+		// Ou
+		// 'https://ecirtam.net/find_shaarlis/out/shaarlis.opml',
+
 		// shaarli.fr OPML
-		'https://shaarlo.fr/opml.php?mod=opml'
+		'https://shaarlo.fr/opml.php?mod=opml',
+
+		//Liandri
+		'https://river.libox.fr/api/feeds?format=opml'
 	);
 }
