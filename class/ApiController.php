@@ -26,8 +26,15 @@ class ApiController extends AbstractApiController
         );
 
         $action = $this->getRequestAction();
-
-        if (!in_array($action, $actions)) {
+        if ($action == "") {
+            $this->outputJSON(
+                array(
+                    'success' => 1,
+                    'api' => 'https://github.com/Oros42/shaarli-river'
+                )
+            );
+            exit;
+        } elseif (!in_array($action, $actions)) {
             $this->error('Bad request (invalid action)');
         }
 

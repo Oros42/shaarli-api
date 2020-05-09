@@ -1,33 +1,17 @@
-Shaarli REST API
-======
-
-## Installation
-* Create mysql database shaarli-api
-* cd shaarli-api
-* Copy `config.php.dist` into `config.php` and setup your own settings.
-* // Run `composer install` (https://getcomposer.org/download/)
-* php -r "readfile('https://getcomposer.org/installer');" | php
-* php composer.phar install
-* Run: php cron.php --verbose
+# Shaarli REST API
 
 ## Requirements
-* PHP 5.4.4
-* MySQL or Sqlite
+* PHP >= 5.4.4
+* MySQL or Sqlite3
 * PDO
-* Apache RewriteEngine or Nginx (see doc folder)
+* Apache RewriteEngine or Nginx
 
-## Update your installation
-* Update your installation via Git (`git update origin master`) or the [archive file](archive/master.zip).
-* Check if there was any changes in [config file](blob/master/config.php.dist), and add settings if necessary.
-* Update external libraries with [Composer](https://getcomposer.org/download/). Run: `composer update`.
-* Run cron the finalize the update: `php cron.php --verbose`.
-
-## Install via SSH exemple (debian)
+## Installation
 ```bash
 cd /var/www
 # Clone repo
 git clone https://github.com/oros42/shaarli-api.git
-# Create mysql database
+# Create mysql database (not need for sqlite)
 mysqladmin create shaarli-api -p
 cd shaarli-api
 # Copy `config.php.dist` into `config.php` and setup your own settings.
@@ -36,9 +20,46 @@ nano config.php
 # Run composer install
 php -r "readfile('https://getcomposer.org/installer');" | php
 php composer.phar install
+```
+In Apache or Nginx set the root folder to /public/.  
+  
+Example of conf for nginx :  
+```
+server {
+# your server conf
+# [...] 
+
+location /shaarli-api { # adapte this
+    alias /var/www/shaarli-api/public; # adapte this
+    try_files $uri $uri/ @shaarliapi;
+
+    location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_param SCRIPT_FILENAME $request_filename;
+    fastcgi_pass unix:/var/run/php/php7.3-fpm.sock; # change this to your php version
+    }
+}
+
+location @shaarliapi {
+    rewrite /shaarli-api/(.*)$ /shaarli-api/index.php?/$1 last;
+}
+```
+  
+Run the cron in test mode.  
+```bash
 # Run cron, for initialization we recommend using the argument --verbose (or -v) to be sure everything working fine
 php cron.php --verbose
 ```
+If no everything work. Run the cron in daemon :  
+```bash
+php cron.php --daemon&
+```
+
+## Update your installation
+* Update your installation via Git (`git update origin master`) or the [archive file](archive/master.zip).
+* Check if there was any changes in [config file](blob/master/config.php.dist), and add settings if necessary.
+* Update external libraries with [Composer](https://getcomposer.org/download/). Run: `composer update`.
+* Run cron the finalize the update: `php cron.php --verbose`.
 
 ## API Usage
 * /feeds La liste des shaarlis
@@ -53,11 +74,11 @@ php cron.php --verbose
 * &pretty=true
 
 ## Samples
-* Obtenir la liste des flux actifs: https://nexen.netk.fr/shaarli-api/feeds?pretty=1
-* Obtenir la liste complète des flux: https://nexen.netk.fr/shaarli-api/feeds?full=1&pretty=1
-* Obtenir le nombre de flux actifs: https://nexen.netk.fr/shaarli-api/feeds?count=1&pretty=1
-* Obtenir les billets d'un seul flux: https://nexen.netk.fr/shaarli-api/feed?id=1&pretty=1
-* Obtenir les derniers billets https://nexen.netk.fr/shaarli-api/latest?pretty=1
-* Obtenir le top des liens partagés depuis 48h: https://nexen.netk.fr/shaarli-api/top?interval=48h&pretty=1
-* Faire une recherche sur php: https://nexen.netk.fr/shaarli-api/search?q=php&pretty=1
-* Rechercher une discution sur un lien: https://nexen.netk.fr/shaarli-api/discussion?url=https://nexen.netk.fr/shaarli-river/index.php&pretty=1
+* Obtenir la liste des flux actifs: https://exemple.com/shaarli-api/feeds?pretty=1
+* Obtenir la liste complète des flux: https://exemple.com/shaarli-api/feeds?full=1&pretty=1
+* Obtenir le nombre de flux actifs: https://exemple.com/shaarli-api/feeds?count=1&pretty=1
+* Obtenir les billets d'un seul flux: https://exemple.com/shaarli-api/feed?id=1&pretty=1
+* Obtenir les derniers billets https://exemple.com/shaarli-api/latest?pretty=1
+* Obtenir le top des liens partagés depuis 48h: https://exemple.com/shaarli-api/top?interval=48h&pretty=1
+* Faire une recherche sur php: https://exemple.com/shaarli-api/search?q=php&pretty=1
+* Rechercher une discution sur un lien: https://exemple.com/shaarli-api/discussion?url=https://exemple.com/shaarli-river/index.php&pretty=1

@@ -24,7 +24,7 @@ define('DB_USER', 'shaarli-api'); // only for mysql
 define('DB_PASS', 'shaarli-api'); // only for mysql
 
 // Favicon directory
-define('FAVICON_DIRECTORY', __DIR__ . '/favicon/');
+define('FAVICON_DIRECTORY', __DIR__ . '/public/favicon/');
 define('FAVICON_DEFAULT', 'default.ico');
 // Reload favicon each month
 define('FAVICON_CACHE_DURATION', 3600*24*30);

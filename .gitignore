@@ -1,7 +1,9 @@
 /cache/
 /vendor/
-favicon/*.ico
-!favicon/default.ico
-composer.lock
-config.php
+/public/favicon/*.ico
+!/favicon/default.ico
+/composer.lock
+/composer.phar
+/config.php
 *.log
+/database/database*
