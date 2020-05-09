@@ -320,12 +320,12 @@ class CronController
             $feed->https = 0;
             $feed->url = preg_replace("/^https:/", "http:", $feed->url);
         }
-try{
-        $feed->save();
-}catch (Exception $e){
-	echo "Error for ".$feed->url."\n";
-	echo $e->getMessage()."\n";
-}
+        try{
+                $feed->save();
+        }catch (Exception $e){
+            echo "Error for ".$feed->url."\n";
+            echo $e->getMessage()."\n";
+        }
         unset($request);
     }
 
@@ -434,8 +434,5 @@ if (is_php_cli()) {
         $controller->run();
     }
 } else {
-
-    // TODO webcron
-
-    die();
+    die("No web cron");
 }
