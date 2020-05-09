@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?php
-
+error_reporting(0);
 use Favicon\Favicon;
 
 class CronController
