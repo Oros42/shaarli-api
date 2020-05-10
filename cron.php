@@ -2,6 +2,12 @@
 <?php
 error_reporting(0);
 use Favicon\Favicon;
+declare(ticks = 1);
+function sig_handler($signo)
+{
+    //clean close for sqlite
+    exit;
+}
 
 class CronController
 {
@@ -397,6 +403,8 @@ function is_php_cli()
 }
 if (is_php_cli()) {
     require __DIR__ . '/bootstrap.php';
+    pcntl_signal(SIGTERM, "sig_handler");
+    pcntl_signal(SIGINT, "sig_handler");
 
     // Let's not break everything if new config isn't set
     if (!defined('FAVICON_DEFAULT')) {
