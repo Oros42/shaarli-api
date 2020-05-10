@@ -25,23 +25,47 @@ In Apache or Nginx set the root folder to /public/.
   
 Example of conf for nginx :  
 ```
+# https://example.com/shaarli-api/
+# /var/www/shaarli-api/public
 server {
-# your server conf
-# [...] 
+    # your server conf
+    # [...] 
+    location /shaarli-api { # adapte this
+        alias /var/www/shaarli-api/public; # adapte this
+        try_files $uri $uri/ @shaarliapi;
+        location ~ \.php$ {
+            include snippets/fastcgi-php.conf;
+            fastcgi_param SCRIPT_FILENAME $request_filename;
+            fastcgi_pass unix:/var/run/php/php7.3-fpm.sock; # change this to your php version
+        }
+    }
 
-location /shaarli-api { # adapte this
-    alias /var/www/shaarli-api/public; # adapte this
-    try_files $uri $uri/ @shaarliapi;
-
-    location ~ \.php$ {
-    include snippets/fastcgi-php.conf;
-    fastcgi_param SCRIPT_FILENAME $request_filename;
-    fastcgi_pass unix:/var/run/php/php7.3-fpm.sock; # change this to your php version
+    location @shaarliapi {
+        rewrite /shaarli-api/(.*)$ /shaarli-api/index.php?$1 last;
     }
 }
-
-location @shaarliapi {
-    rewrite /shaarli-api/(.*)$ /shaarli-api/index.php?/$1 last;
+```
+or  
+```
+# https://shaarli-api.example.com/
+# /var/www/shaarli-api/public
+server {
+    # your server conf
+    # [...] 
+    server_name shaarli-api.example.com; # adapte this
+    root /var/www/shaarli-api/public/; # adapte this
+    index index.html index.htm index.php;
+    location / {
+        try_files $uri $uri/ @shaarliapi;
+    }
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_param SCRIPT_FILENAME $request_filename;
+        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock; # change this to your php version
+    }
+    location @shaarliapi {
+        rewrite /(.*)$ /index.php?$1 last;
+    }
 }
 ```
   
