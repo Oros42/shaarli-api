@@ -10,19 +10,20 @@ class ApiController extends AbstractApiController
     {
 
         // Les actions disponible
+        // array(ACTION=>array(EXAMPLE_URL))
         $actions = array(
-            'feed',
-            'feeds',
-            'latest',
-            'top',
-            'search',
-            'discussion',
-            'bestlinks',
-            'random',
-            'keywords',
-            'syncfeeds',
-            'getfavicon',
-            'ping',
+            'feed' => array('feeds?pretty=1'),
+            'feeds' => array('feeds?full=1&pretty=1'),
+            'latest' => array('latest?pretty=1','latest?format=rss'),
+            'top' => array('top?interval=48h&pretty=1'),
+            'search' => array('search?q=sebsauvage&pretty=1'),
+            'discussion' => array('discussion?url=https://exemple.com/shaarli-river/index.php&pretty=1'),
+            'bestlinks' => array('bestlinks'),
+            'random' => array('random?limit=10&pretty=1'),
+            'keywords' => array('keywords'),
+            'syncfeeds' => array('syncfeeds'),
+            'getfavicon' => array('getfavicon?id=1'),
+            'ping' => array('ping?url=https://exemple.com')
         );
 
         $action = $this->getRequestAction();
@@ -30,11 +31,12 @@ class ApiController extends AbstractApiController
             $this->outputJSON(
                 array(
                     'success' => 1,
-                    'api' => API_SOURCE_CODE
+                    'api' => API_SOURCE_CODE,
+                    'actions' => $actions
                 )
             );
             exit;
-        } elseif (!in_array($action, $actions)) {
+        } elseif (!isset($actions[$action])) {
             $this->error('Bad request (invalid action)');
         }
 
@@ -59,18 +61,16 @@ class ApiController extends AbstractApiController
 
         if (method_exists($api, $action)) {
             try {
-                
                 // Execute the action
                 $results = $api->$action($arguments);
             } catch (ShaarliApiException $e) {
                 $this->error($e->getMessage());
             } catch (\Exception $e) {
-                exit();
+                $this->error($e->getMessage());
             }
         } else {
             $this->error('Bad request (invalid action)');
         }
-
 
         if ($action == 'getfavicon') {
             if (isset($results['favicon']) && file_exists($results['favicon'])) {
