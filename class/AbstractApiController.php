@@ -8,8 +8,8 @@ abstract class AbstractApiController
      */
     protected function getRequestAction()
     {
-        if (isset($_SERVER['QUERY_STRING'])) {
-            $action = trim($_SERVER['QUERY_STRING'], '/'); // secure?
+        if (isset($_SERVER['PATH_INFO'])) {
+            $action = trim($_SERVER['PATH_INFO'], '/'); // secure?
             return $action;
         }
     }

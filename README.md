@@ -30,18 +30,13 @@ Example of conf for nginx :
 server {
     # your server conf
     # [...] 
-    location /shaarli-api { # adapte this
-        alias /var/www/shaarli-api/public; # adapte this
-        try_files $uri $uri/ @shaarliapi;
-        location ~ \.php$ {
-            include snippets/fastcgi-php.conf;
-            fastcgi_param SCRIPT_FILENAME $request_filename;
-            fastcgi_pass unix:/var/run/php/php7.3-fpm.sock; # change this to your php version
-        }
+    location /shaarli-api { # adapt this
+        alias /var/www/shaarli-api/public; # adapt this
+        try_files $uri /index.php$uri$is_args$args; # the most important part !
     }
-
-    location @shaarliapi {
-        rewrite /shaarli-api/(.*)$ /shaarli-api/index.php?$1 last;
+    location ~ ^/index\.php(/|$) {
+        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock; # adapt this
+        include snippets/fastcgi-php.conf;
     }
 }
 ```
@@ -52,21 +47,16 @@ or
 server {
     # your server conf
     # [...] 
-    server_name shaarli-api.example.com; # adapte this
-    root /var/www/shaarli-api/public/; # adapte this
+    server_name shaarli-api.example.com; # adapt this
+    root /var/www/shaarli-api/public/; # adapt this
     index index.html index.htm index.php;
     location / {
-        try_files $uri $uri/ @shaarliapi;
+        try_files $uri /index.php$uri$is_args$args; # the most important part !
     }
-    location ~ \.php$ {
+    location ~ ^/index\.php(/|$) {
+        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock; # adapt this
         include snippets/fastcgi-php.conf;
-        fastcgi_param SCRIPT_FILENAME $request_filename;
-        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock; # change this to your php version
     }
-    location @shaarliapi {
-        rewrite /(.*)$ /index.php?$1 last;
-    }
-}
 ```
   
 Run the cron in test mode.  
