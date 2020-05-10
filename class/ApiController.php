@@ -30,7 +30,7 @@ class ApiController extends AbstractApiController
             $this->outputJSON(
                 array(
                     'success' => 1,
-                    'api' => 'https://github.com/Oros42/shaarli-river'
+                    'api' => API_SOURCE_CODE
                 )
             );
             exit;

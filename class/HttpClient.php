@@ -5,7 +5,7 @@ class HttpClient
     private $headers = array(
         'Connection: close',
         'Accept: text/plain,text/html',
-        'User-Agent: Mozilla/5.0 (compatible; ShaarliApiBot/2.0; +https://github.com/oros42/shaarli-api; +shaarli@ecirtam.net)',
+        'User-Agent: '.USER_AGENT,
         'Accept-Encoding: gzip,deflate,br',
     );
 
