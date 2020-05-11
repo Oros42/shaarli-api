@@ -21,10 +21,16 @@ class ApiController extends AbstractApiController
             'bestlinks' => array('bestlinks'),
             'random' => array('random?limit=10&pretty=1'),
             'keywords' => array('keywords'),
-            'syncfeeds' => array('syncfeeds'),
-            'getfavicon' => array('getfavicon?id=1'),
-            'ping' => array('ping?url=https://exemple.com')
+            'getfavicon' => array('getfavicon?id=1')
         );
+
+        if (defined('ALLOW_WEB_SYNC') && ALLOW_WEB_SYNC) {
+            $actions['syncfeeds'] = array('syncfeeds');
+        }
+
+        if (defined('ALLOW_WEB_PING') && ALLOW_WEB_PING) {
+            $actions['ping'] = array('ping?url=https://exemple.com');
+        }
 
         $action = $this->getRequestAction();
         if ($action == "") {

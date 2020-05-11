@@ -59,6 +59,7 @@ server {
     }
 ```
   
+## Run
 Run the cron in test mode.  
 ```bash
 # Run cron, for initialization we recommend using the argument --verbose (or -v) to be sure everything working fine
@@ -67,6 +68,17 @@ php cron.php --verbose
 If no everything work. Run the cron in daemon :  
 ```bash
 php cron.php --daemon&
+```
+
+## Sync
+
+Update the list of shaarli.
+```bash
+php cron.php --sync
+```
+or if ```define('ALLOW_WEB_SYNC', true);``` in config.php :
+```bash
+https://exemple.com/syncfeeds
 ```
 
 ## Update your installation
