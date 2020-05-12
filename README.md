@@ -60,9 +60,37 @@ server {
 ```
   
 ## Run
-Run the cron in test mode.  
 ```bash
-# Run cron, for initialization we recommend using the argument --verbose (or -v) to be sure everything working fine
+$ php cron.php -h
+php cron.php [Options]
+Options
+-c, --check   : check the DB
+-d, --daemon  : run in daemon. Fetch all feeds in loop
+-h, --help    : this help
+-s, --sync    : synchronize the list of feeds
+-v, --verbose : increase verbosity
+
+If no option, fetch 1 time all feeds.
+Examples :
+php cron.php --check
+php cron.php --verbose
+php cron.php -d -v
+php cron.php --daemon&
+php cron.php --sync --verbose
+```
+
+Check the database :  
+```bash
+php cron.php --check
+```
+
+If you use sqlite :  
+```bash
+sudo chown -R $USER:www-data database/
+```
+
+Run cron, for initialization we recommend using the argument --verbose (or -v) to be sure everything working fine
+```bash
 php cron.php --verbose
 ```
 If no everything work. Run the cron in daemon :  
@@ -74,7 +102,7 @@ php cron.php --daemon&
 
 Update the list of shaarli.
 ```bash
-php cron.php --sync
+php cron.php --sync --verbose
 ```
 or if ```define('ALLOW_WEB_SYNC', true);``` in config.php :
 ```bash

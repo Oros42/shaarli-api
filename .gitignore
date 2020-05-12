@@ -1,9 +1,10 @@
-/cache/
-/vendor/
-/public/favicon/*.ico
 !/favicon/default.ico
+*.log
+/blacklist.txt
+/cache/
 /composer.lock
 /composer.phar
 /config.php
-*.log
 /database/database*
+/public/favicon/*.ico
+/vendor/

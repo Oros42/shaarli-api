@@ -132,11 +132,14 @@ class ApiController extends AbstractApiController
 
     /**
      * syncfeeds action
+     * @return int Number of new feeds
      */
     public function syncfeeds()
     {
         $api = new ShaarliApi();
-        $api->syncfeeds(shaarli_api_nodes());
-        $api->syncWithOpmlFiles(shaarli_opml_files());
+        $api->addBlacklist();
+        $count = $api->syncfeeds(shaarli_api_nodes());
+        $count += $api->syncWithOpmlFiles(shaarli_opml_files());
+        return $count;
     }
 }

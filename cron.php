@@ -369,8 +369,8 @@ class CronController
         $this->verbose('Syncing feeds list... (got ' . $this->countFeeds() . ' feeds)');
 
         $controller = new ApiController();
-        $controller->syncfeeds();
-
+        $newFeeds = $controller->syncfeeds();
+        $this->verbose('Add '.$newFeeds.' Feeds');
         unset($controller);
 
         $this->verbose('Feeds list synced (got ' . $this->countFeeds() . ' feeds)');
@@ -414,13 +414,32 @@ if (is_php_cli()) {
         define('FAVICON_CACHE_DURATION', 3600*24*30);
     }
 
-    if (in_array('--daemon', $argv) or in_array('-d', $argv)) { // daemon mode
+    if (in_array('--help', $argv) || in_array('-h', $argv)) {
+        echo "php cron.php [Options]\n";
+        echo "Options\n";
+        echo "-c, --check   : check the database\n";
+        echo "-d, --daemon  : run in daemon. Fetch all feeds in loop\n";
+        echo "-h, --help    : this help\n";
+        echo "-s, --sync    : synchronize the list of feeds\n";
+        echo "-v, --verbose : increase verbosity\n";
+        echo "\n";
+        echo "If no option, fetch 1 time all feeds.\n";
+        echo "Examples :\n";
+        echo "php cron.php --check\n";
+        echo "php cron.php --verbose\n";
+        echo "php cron.php --sync --verbose\n";
+        echo "php cron.php --daemon&\n";
+        echo "php cron.php -d -v\n";
+        exit();
+    }
+
+    $verbose = in_array('--verbose', $argv) || in_array('-v', $argv);
+
+    if (in_array('--daemon', $argv) || in_array('-d', $argv)) { // daemon mode
 
         while (true) {
             $controller = new CronController();
-            if (in_array('--verbose', $argv) or in_array('-v', $argv)) {
-                $controller->verbose = true;
-            }
+            $controller->verbose = $verbose;
             $success = $controller->fetchAll();
             unset($controller);
 
@@ -428,16 +447,17 @@ if (is_php_cli()) {
                 sleep(30);
             }
         }
-    } elseif (in_array('--sync', $argv)) { // sync feeds
-
+    } elseif (in_array('--sync', $argv) || in_array('-s', $argv)) { // sync feeds
         $controller = new CronController();
+        $controller->verbose = $verbose;
         $controller->syncFeeds();
-    } else { // standard mode
-
+    } elseif (in_array('--check', $argv) || in_array('-c', $argv)) { // check the database
         $controller = new CronController();
-        if (in_array('--verbose', $argv) or in_array('-v', $argv)) {
-            $controller->verbose = true;
-        }
+        $controller->verbose = true;
+        $controller->check();
+    } else { // standard mode
+        $controller = new CronController();
+        $controller->verbose = $verbose;
         $controller->check();
         $controller->run();
     }

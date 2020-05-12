@@ -24,7 +24,7 @@ require __DIR__.'/vendor/autoload.php';
 
 if (DB_TYPE=="sqlite") {
     // sqlite
-    ORM::configure('sqlite:'.dirname(__FILE__).'/database/database.db');
+    ORM::configure('sqlite:'.__DIR__.'/database/database.db');
     ORM::configure('caching', true);
     ORM::configure('caching_auto_clear', true);
 } elseif (DB_TYPE=="mysql") {

@@ -1,0 +1,18 @@
+# This file is there to block the adding of not working shaarli
+# or duplicate (https / http)
+# If string on line is found in URL, then skip the add
+
+# Examples of rules :
+
+http://exemple.com/
+# will block http://exemple.com/*
+# like http://exemple.com/plop
+
+exemple.com
+# will block *exemple.com*
+# http://exemple.com
+# https://exemple.com
+# https://exemple.com/plop
+# https://plop.exemple.com/
+
+# This is a comment

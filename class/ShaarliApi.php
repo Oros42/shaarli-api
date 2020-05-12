@@ -3,6 +3,7 @@
 class ShaarliApi
 {
 
+    private $blacklist = array();
     /**
      * Get single feed
      *
@@ -330,16 +331,16 @@ class ShaarliApi
     {
         if (!empty(DB_TYPE) && DB_TYPE=="sqlite") {
             $entries = Feed::factory()
-                     ->select_expr('feeds.id AS feed_id, feeds.url AS feed_url, feeds.link AS feed_link, feeds.title AS feed_title')
-                     ->select_expr('entries.id, date, permalink, entries.title, content, categories')
-                    ->join('entries', array('entries.feed_id', '=', 'feeds.id'))
-                    ->order_by_expr('RANDOM()');
+                        ->select_expr('feeds.id AS feed_id, feeds.url AS feed_url, feeds.link AS feed_link, feeds.title AS feed_title')
+                        ->select_expr('entries.id, date, permalink, entries.title, content, categories')
+                        ->join('entries', array('entries.feed_id', '=', 'feeds.id'))
+                        ->order_by_expr('RANDOM()');
         } else {
             $entries = Feed::factory()
-                                         ->select_expr('feeds.id AS feed_id, feeds.url AS feed_url, feeds.link AS feed_link, feeds.title AS feed_title')
-                                         ->select_expr('entries.id, date, permalink, entries.title, content, categories')
-                                        ->join('entries', array('entries.feed_id', '=', 'feeds.id'))
-                                        ->order_by_expr('RAND()');
+                        ->select_expr('feeds.id AS feed_id, feeds.url AS feed_url, feeds.link AS feed_link, feeds.title AS feed_title')
+                        ->select_expr('entries.id, date, permalink, entries.title, content, categories')
+                        ->join('entries', array('entries.feed_id', '=', 'feeds.id'))
+                        ->order_by_expr('RAND()');
         }
 
         // Limit
@@ -453,9 +454,11 @@ class ShaarliApi
     /**
      * Sync feeds list with other API nodes
      * @param array nodes
+     * @return int Number of new feeds
      */
     public function syncfeeds($nodes)
     {
+        $count = 0;
         if (!empty($nodes)) {
             $curl = new HttpClient();
 
@@ -473,19 +476,22 @@ class ShaarliApi
                     }
 
                     if (!empty($urls)) {
-                        $this->addFeeds($urls);
+                        $count += $this->addFeeds($urls);
                     }
                 }
             }
         }
+        return $count;
     }
 
     /**
      * Sync with OPML files
      * @param array files
+     * @return int Number of new feeds
      */
     public function syncWithOpmlFiles($files)
     {
+        $count = 0;
         if (!empty($files)) {
             $curl = new HttpClient();
 
@@ -501,34 +507,79 @@ class ShaarliApi
                     foreach ($xml->body->outline as $value) {
                         $attributes = $value->attributes();
 
-                        $urls[] = $attributes->xmlUrl;
+                        $urls[] = $attributes->xmlUrl->__toString();
                     }
 
                     if (!empty($urls)) {
-                        $this->addFeeds($urls);
+                        $count += $this->addFeeds($urls);
                     }
                 }
             }
         }
+        return $count;
     }
 
     /**
      * Push feed url list in database
      * @param array urls
+     * @return int Number of new feeds
      */
     public function addFeeds($urls)
     {
+        $count = 0;
         if (!empty($urls)) {
-            $urls = array_unique($urls);
+            $urls = $this->urlCleaning($urls);
             foreach ($urls as $url) {
                 $feed = Feed::create();
                 $feed->setUrl($url);
-
                 if (!$feed->exists()) {
+                    if (!empty($this->blacklist)) {
+                        foreach ($this->blacklist as $blacklisted) {
+                            if (strpos($url, $blacklisted) !== false) {
+                                // go to next url
+                                // and skip add
+                                continue 2;
+                            }
+                        }
+                    }
                     $feed->save();
+                    $count++;
                 }
             }
         }
+        return $count;
+    }
+
+    /**
+     * URL cleaning
+     * @param array urls
+     * @return array
+     */
+    private function urlCleaning($urls) {
+        $urls = array_unique($urls);
+        foreach ($urls as $key => $url) {
+            /*
+                "http://example.com/?plop" => "http://example.com/?plop",
+                "http://example.com?plop" => "http://example.com/?plop",
+                "http://example.com/index.php?plop" => "http://example.com/?plop",
+                "http://example.plop?plop" => "http://example.plop/?plop",
+                "http://example.com/tata?plop" => "http://example.com/tata/?plop",
+                "http://example.com/tata.php?plop" => "http://example.com/tata.php?plop",
+                "http://example.com/42?plop" => "http://example.com/42/?plop"
+            */
+            $url = str_replace(".php/?", ".php?", $url);
+            $url = str_replace("/index.php5?", "/?", $url);
+            $url = str_replace("/index.php?", "/?", $url);
+            $t = explode("?", $url);
+            if (count($t) == 2) {
+                if (substr($t[0],-1) != "/" && substr($t[0],-4) != ".php") {
+                    $t[0] .= "/";
+                }
+            }
+            $urls[$key] = implode("?", $t);
+        }
+        $urls = array_unique($urls);
+        return $urls;
     }
 
     /**
@@ -573,6 +624,25 @@ class ShaarliApi
             return $json;
         } else {
             throw new ShaarliApiException('Need url (?url=url)');
+        }
+    }
+
+    /**
+     * Add blacklist restriction
+     */
+    public function addBlacklist() {
+        if (is_file(__DIR__ .'/../blacklist.txt')) {
+            $handle = @fopen(__DIR__ .'/../blacklist.txt', "r");
+            if ($handle) {
+                while (($buffer = fgets($handle, 4096)) !== false) {
+                    $s = explode("#", $buffer); // remove comment
+                    $link = trim($s[0]);
+                    if(!empty($link)) {
+                        $this->blacklist[] = $link;
+                    }
+                }
+                fclose($handle);
+            }
         }
     }
 }
