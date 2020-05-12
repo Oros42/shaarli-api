@@ -17,6 +17,8 @@ cd shaarli-api
 # Copy `config.php.dist` into `config.php` and setup your own settings.
 cp config.php.dist config.php
 nano config.php
+# blacklist of dead shaarlis
+cp blacklist.txt.dist blacklist.txt
 # Run composer install
 php -r "readfile('https://getcomposer.org/installer');" | php
 php composer.phar install
