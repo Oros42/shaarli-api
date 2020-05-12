@@ -95,7 +95,7 @@ Run cron, for initialization we recommend using the argument --verbose (or -v) t
 ```bash
 php cron.php --verbose
 ```
-If no everything work. Run the cron in daemon :  
+If everything work, then you can run the cron in daemon :  
 ```bash
 php cron.php --daemon&
 ```
@@ -108,7 +108,7 @@ php cron.php --sync --verbose
 ```
 or if ```define('ALLOW_WEB_SYNC', true);``` in config.php :
 ```bash
-https://exemple.com/syncfeeds
+https://example.com/syncfeeds
 ```
 
 ## Update your installation
@@ -130,11 +130,11 @@ https://exemple.com/syncfeeds
 * &pretty=true
 
 ## Samples
-* Obtenir la liste des flux actifs: https://exemple.com/shaarli-api/feeds?pretty=1
-* Obtenir la liste complète des flux: https://exemple.com/shaarli-api/feeds?full=1&pretty=1
-* Obtenir le nombre de flux actifs: https://exemple.com/shaarli-api/feeds?count=1&pretty=1
-* Obtenir les billets d'un seul flux: https://exemple.com/shaarli-api/feed?id=1&pretty=1
-* Obtenir les derniers billets https://exemple.com/shaarli-api/latest?pretty=1
-* Obtenir le top des liens partagés depuis 48h: https://exemple.com/shaarli-api/top?interval=48h&pretty=1
-* Faire une recherche sur php: https://exemple.com/shaarli-api/search?q=php&pretty=1
-* Rechercher une discution sur un lien: https://exemple.com/shaarli-api/discussion?url=https://exemple.com/shaarli-river/index.php&pretty=1
+* Obtenir la liste des flux actifs: https://example.com/shaarli-api/feeds?pretty=1
+* Obtenir la liste complète des flux: https://example.com/shaarli-api/feeds?full=1&pretty=1
+* Obtenir le nombre de flux actifs: https://example.com/shaarli-api/feeds?count=1&pretty=1
+* Obtenir les billets d'un seul flux: https://example.com/shaarli-api/feed?id=1&pretty=1
+* Obtenir les derniers billets https://example.com/shaarli-api/latest?pretty=1
+* Obtenir le top des liens partagés depuis 48h: https://example.com/shaarli-api/top?interval=48h&pretty=1
+* Faire une recherche sur php: https://example.com/shaarli-api/search?q=php&pretty=1
+* Rechercher une discution sur un lien: https://example.com/shaarli-api/discussion?url=https://example.com/shaarli-river/index.php&pretty=1
