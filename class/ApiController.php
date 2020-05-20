@@ -16,7 +16,7 @@ class ApiController extends AbstractApiController
             'feeds' => array('feeds?full=1&pretty=1'),
             'latest' => array('latest?pretty=1','latest?format=rss'),
             'top' => array('top?interval=48h&pretty=1'),
-            'search' => array('search?q=sebsauvage&pretty=1'),
+            'search' => array('search?q=sebsauvage&pretty=1','search?c=1&q=a_category&pretty=1'),
             'discussion' => array('discussion?url=https://exemple.com/shaarli-river/index.php&pretty=1'),
             'bestlinks' => array('bestlinks'),
             'random' => array('random?limit=10&pretty=1'),

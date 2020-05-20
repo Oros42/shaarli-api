@@ -258,11 +258,12 @@ class ShaarliApi
     /**
      * Search entries
      * @route /search
-     * @args q={searchterm}
+     * @args q={searchterm} [c=1]
      */
     public function search($arguments)
     {
         if (isset($arguments['q']) && !empty($arguments['q'])) {
+            $search_category = isset($arguments['c']) && $arguments['c'] == 1; // search category
             $term = $arguments['q'];
 
             // Advanced Search
@@ -284,8 +285,9 @@ class ShaarliApi
                     ->join('entries', array('entries.feed_id', '=', 'feeds.id'))
                     ->order_by_desc('date');
 
-            if ($adv_search == 'title') { // Search in title only
-
+            if ($search_category) {
+                $entries->where_like('entries.categories', $term);
+            } elseif ($adv_search == 'title') { // Search in title only
                 $entries->where_like('entries.title', $term);
             } elseif ($adv_search == 'feed') {
                 $entries->where_like('feeds.title', $term);
