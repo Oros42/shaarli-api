@@ -27,6 +27,12 @@ In Apache or Nginx set the root folder to /public/.
   
 Example of conf for nginx :  
 ```
+#/etc/nginx/conf.d/fastcgi_cache.conf
+fastcgi_cache_path /dev/shm/nginx levels=1:2 keys_zone=phpcache:10m max_size=20m inactive=60m use_temp_path=off;
+fastcgi_cache_key "$scheme$request_method$host$request_uri";
+```
+```
+# /etc/nginx/sites-available/shaarli-api
 # https://example.com/shaarli-api/
 # /var/www/shaarli-api/public
 server {
@@ -37,6 +43,14 @@ server {
         try_files $uri /index.php$uri$is_args$args; # the most important part !
     }
     location ~ ^/index\.php(/|$) {
+        # 1 minute cache
+        fastcgi_cache phpcache;
+        fastcgi_cache_valid 200 301 302 1m;
+        fastcgi_cache_use_stale error timeout updating invalid_header http_500 http_503;
+        fastcgi_cache_min_uses 1;
+        fastcgi_cache_lock on;
+        add_header X-FastCGI-Cache $upstream_cache_status;
+
         fastcgi_pass unix:/var/run/php/php7.3-fpm.sock; # adapt this
         include snippets/fastcgi-php.conf;
     }
@@ -44,6 +58,7 @@ server {
 ```
 or  
 ```
+# /etc/nginx/sites-available/shaarli-api
 # https://shaarli-api.example.com/
 # /var/www/shaarli-api/public
 server {
@@ -56,6 +71,14 @@ server {
         try_files $uri /index.php$uri$is_args$args; # the most important part !
     }
     location ~ ^/index\.php(/|$) {
+        # 1 minute cache
+        fastcgi_cache phpcache;
+        fastcgi_cache_valid 200 301 302 1m;
+        fastcgi_cache_use_stale error timeout updating invalid_header http_500 http_503;
+        fastcgi_cache_min_uses 1;
+        fastcgi_cache_lock on;
+        add_header X-FastCGI-Cache $upstream_cache_status;
+
         fastcgi_pass unix:/var/run/php/php7.3-fpm.sock; # adapt this
         include snippets/fastcgi-php.conf;
     }

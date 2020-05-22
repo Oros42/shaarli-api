@@ -42,21 +42,23 @@ abstract class AbstractApiController
      */
     protected function outputJSON($results, $pretty = false)
     {
-try{
-        // Petty JSON
-        if ($pretty) {
-            $json = json_encode($results, JSON_PRETTY_PRINT|JSON_PARTIAL_OUTPUT_ON_ERROR);
-        } else {
-            $json = json_encode($results, JSON_PARTIAL_OUTPUT_ON_ERROR);
+        try{
+            // Petty JSON
+            if ($pretty) {
+                $json = json_encode($results, JSON_PRETTY_PRINT|JSON_PARTIAL_OUTPUT_ON_ERROR);
+            } else {
+                $json = json_encode($results, JSON_PARTIAL_OUTPUT_ON_ERROR);
+            }
+        }catch(\Exception $e){
+            $json = json_encode(array('error'=>'json'));
         }
-}catch(\Exception $e){
-	$json = json_encode(array('error'=>'json'));
-}
-        header('Cache-Control: no-cache, must-revalidate');
-        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        $seconds_to_cache = 60;// 60 seconds
+        $ts = gmdate("D, d M Y H:i:s", time() + $seconds_to_cache) . " GMT";
+        header("Expires: $ts");
+        header("Pragma: cache");
+        header("Cache-Control: max-age=$seconds_to_cache");
         header('Content-type: application/json');
-	echo $json;
-
+        echo $json;
         exit();
     }
 
