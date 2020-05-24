@@ -462,15 +462,23 @@ if (is_php_cli()) {
     $verbose = in_array('--verbose', $argv) || in_array('-v', $argv);
 
     if (in_array('--daemon', $argv) || in_array('-d', $argv)) { // daemon mode
-
+        if ($verbose) {
+            echo date('Y-m-d H:i:s')."\n";
+        }
         while (true) {
             $controller = new CronController();
             $controller->verbose = $verbose;
-            $success = $controller->fetchAll();
+            $success = $controller->fetchAll(); // ~ 3 min
             unset($controller);
 
             if (!$success) {
                 sleep(30);
+            } else {
+                // pause for 5 min
+                if ($verbose) {
+                    echo date('Y-m-d H:i:s')."\n";
+                }
+                sleep(300);
             }
         }
     } elseif (in_array('--sync', $argv) || in_array('-s', $argv)) { // sync feeds
