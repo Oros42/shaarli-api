@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `id` INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT ,
   `url` varchar(255) NOT NULL,
   `https` tinyint(1) DEFAULT NULL,
+  `last_https_check` timestamp NULL DEFAULT NULL,
   `link` varchar(255) DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
   `error` varchar(255) DEFAULT NULL,

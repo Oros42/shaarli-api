@@ -1,0 +1,1 @@
+ALTER TABLE feeds ADD COLUMN `last_https_check` timestamp NULL DEFAULT NULL AFTER `https`;

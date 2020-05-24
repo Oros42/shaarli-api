@@ -303,39 +303,47 @@ class CronController
      */
     public function checkHttpsCapability(Feed $feed)
     {
-        $this->verbose('Checking HTTPS capability: ' . $feed->url);
+        $request = null;
+        if (empty($feed->last_https_check) || substr($feed->last_https_check, 0, 10) < date("Y-m-d")) {
+            // check https only 1 time by day
+            $this->verbose('Checking HTTPS capability: ' . $feed->url);
 
-        $url = preg_replace("/^http:/", "https:", $feed->url);
+            $url = preg_replace("/^http:/", "https:", $feed->url);
 
-        $request = $this->curl->makeRequest($url);
-        $https_capable = false;
+            $request = $this->curl->makeRequest($url);
+            $https_capable = false;
 
-        if ($request['info']['http_code'] == 200) {
-            $simplepie = new SimplePie();
-            $simplepie->set_raw_data($request['html']);
-            $success = @$simplepie->init();
+            if ($request['info']['http_code'] == 200
+                && !empty($request['html'])
+                && strpos(substr($request['html'], 0, 200), "<?xml")
+            ) {
+                $simplepie = new SimplePie();
+                @$simplepie->set_raw_data($request['html']);
+                $success = @$simplepie->init();
 
-            if ($success !== false) {
-                $https_capable = true;
-            } else {
-                // Capable but unable to parse feed, maybe shaarli only served on port 80
+                if ($success !== false) {
+                    $https_capable = true;
+                } else {
+                    // Capable but unable to parse feed, maybe shaarli only served on port 80
+                }
             }
-        }
 
-        if ($https_capable) {
-            $feed->https = 1;
-            $feed->url = $url;
-        } else {
-            $feed->https = 0;
-            $feed->url = preg_replace("/^https:/", "http:", $feed->url);
-            $request = null;
-        }
-        try{
-            $feed->save();
-        }catch (Exception $e){
-            echo "Error for ".$feed->url."\n";
-            echo $e->getMessage()."\n";
-            $request = null;
+            if ($https_capable) {
+                $feed->https = 1;
+                $feed->url = $url;
+            } else {
+                $feed->https = 0;
+                $feed->url = preg_replace("/^https:/", "http:", $feed->url);
+                $request = null;
+            }
+            try{
+                $feed->httpsChecked();
+                $feed->save();
+            }catch (Exception $e){
+                echo "Error for ".$feed->url."\n";
+                echo $e->getMessage()."\n";
+                $request = null;
+            }
         }
         return $request;
     }

@@ -53,6 +53,20 @@ class Feed extends ModelBase
     }
 
     /**
+     * Set feed as httpsChecked
+     */
+    public function httpsChecked()
+    {
+        if (DB_TYPE=="sqlite") {
+            $this->set_expr('last_https_check', "datetime('NOW')");
+        } elseif (DB_TYPE=="mysql") {
+            $this->set_expr('last_https_check', 'NOW()');
+        } else {
+            die("Error in config.php. DB_TYPE is not sqlite or mysql");
+        }
+    }
+
+    /**
      * Check if feed already exist
      * @return bool
      */

@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `https` tinyint(1) DEFAULT NULL,
+  `last_https_check` timestamp NULL DEFAULT NULL,
   `link` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `error` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
