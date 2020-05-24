@@ -168,7 +168,7 @@ class CronController
             return; // skip
         }
 
-        if (strpos(substr($request['html'], 0, 200), "<?xml") === false) {
+        if (strpos(substr($request['html'], 0, 200), "xml") === false) {
             $feed->error = '[NOT XML]';
             $feed->fetch_interval += 60;
             if ($feed->fetch_interval > (60*24*7)) { // Déactive le flux au bout de 7 jours
@@ -329,7 +329,7 @@ class CronController
 
             if ($request['info']['http_code'] == 200
                 && !empty($request['html'])
-                && strpos(substr($request['html'], 0, 200), "<?xml") !== false
+                && strpos(substr($request['html'], 0, 200), "xml") !== false
             ) {
                 $simplepie = new SimplePie();
                 @$simplepie->set_raw_data($request['html']);
