@@ -12,8 +12,8 @@ class ApiController extends AbstractApiController
         // Les actions disponible
         // array(ACTION=>array(EXAMPLE_URL))
         $actions = array(
-            'feed' => array('feeds?pretty=1'),
-            'feeds' => array('feeds?full=1&pretty=1'),
+            'feed' => array('feed?id=1&pretty=1'),
+            'feeds' => array('feeds?full=1&pretty=1','feeds?disabled=1&pretty=1','feeds?error=1&pretty=1','feeds?pretty=1'),
             'latest' => array('latest?pretty=1','latest?format=rss'),
             'top' => array('top?interval=48h&pretty=1'),
             'search' => array('search?q=sebsauvage&pretty=1','search?c=1&q=a_category&pretty=1'),
