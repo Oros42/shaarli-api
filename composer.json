@@ -2,7 +2,7 @@
     "require": {
         "simplepie/simplepie": "^1.4",
         "j4mie/paris": "^1.5",
-        "arthurhoaro/favicon": "^1.1"
+        "arthurhoaro/favicon": "~1.0"
     },
     "autoload": {
         "files": [

@@ -130,13 +130,16 @@ class CronController
             $this->verbose('Strip index.php: ' . $feed->url);
         }
 
+        $request = null;
         // Check HTTPS capability
         if ($feed->https == null) {
-            $this->checkHttpsCapability($feed);
+            $request = $this->checkHttpsCapability($feed);
         }
 
         // Execute HTTP Request
-        $request = $this->curl->makeRequest($feed->url);
+        if ($request == null) {
+            $request = $this->curl->makeRequest($feed->url);
+        }
 
         if ($request['info']['http_code'] != 200) {
             $feed->error = '[ERROR HTTP CODE ' . $request['info']['http_code'] . ']';
@@ -310,7 +313,7 @@ class CronController
         if ($request['info']['http_code'] == 200) {
             $simplepie = new SimplePie();
             $simplepie->set_raw_data($request['html']);
-            $success = $simplepie->init();
+            $success = @$simplepie->init();
 
             if ($success !== false) {
                 $https_capable = true;
@@ -325,14 +328,16 @@ class CronController
         } else {
             $feed->https = 0;
             $feed->url = preg_replace("/^https:/", "http:", $feed->url);
+            $request = null;
         }
         try{
-                $feed->save();
+            $feed->save();
         }catch (Exception $e){
             echo "Error for ".$feed->url."\n";
             echo $e->getMessage()."\n";
+            $request = null;
         }
-        unset($request);
+        return $request;
     }
 
     /**

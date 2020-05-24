@@ -19,7 +19,7 @@ class HttpClient
           'http' => array(
             'method' => 'GET',
             'header' => $this->headers,
-            'timeout' => 15.0,
+            'timeout' => 8.0,
             'max_redirects' => 5,
             'protocol_version' => 1.1
           ),
