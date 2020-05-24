@@ -168,6 +168,20 @@ class CronController
             return; // skip
         }
 
+        if (strpos(substr($request['html'], 0, 200), "<?xml") === false) {
+            $feed->error = '[NOT XML]';
+            $feed->fetch_interval += 60;
+            if ($feed->fetch_interval > (60*24*7)) { // Déactive le flux au bout de 7 jours
+                $feed->enabled = 0;
+            }
+            $feed->fetched();
+            $feed->save();
+
+            $this->verbose('Error Fetching: '.$feed->url.' Not XML content');
+
+            return; // skip
+        }
+
         if ($request['info']['url'] != $feed->url) {
             $this->verbose('Redirected to: '.$request['info']['url']);
 
@@ -196,9 +210,9 @@ class CronController
         $simplepie = new SimplePie();
         // $simplepie->set_cache_location( __DIR__ . '/cache/simplepie/' );
 
-        $simplepie->set_raw_data($request['html']);
+        @$simplepie->set_raw_data($request['html']);
 
-        $success = $simplepie->init();
+        $success = @$simplepie->init();
 
         if ($success === false) {
             $feed->error = '[ERROR PARSING FEED]';
@@ -315,7 +329,7 @@ class CronController
 
             if ($request['info']['http_code'] == 200
                 && !empty($request['html'])
-                && strpos(substr($request['html'], 0, 200), "<?xml")
+                && strpos(substr($request['html'], 0, 200), "<?xml") !== false
             ) {
                 $simplepie = new SimplePie();
                 @$simplepie->set_raw_data($request['html']);
