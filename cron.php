@@ -233,17 +233,19 @@ class CronController
         $tmp_items = array();
         $hashs = array();
         foreach ($items as $item) {
-            $entry = Entry::create();
-            $entry->hash = $item->get_id(true);
-            $entry->feed_id = $feed->id;
-            $tmp_items[$entry->hash] = $entry;
-            $hashs[] = $entry->hash;
+            $hash = $item->get_id(true);
+            $tmp_items[$hash] = $item;
+            $hashs[] = $hash;
         }
 
         $hashs_to_add = Entry::getHashToAdd($hashs, $feed->id);
 
         foreach ($hashs_to_add as $hash) {
-            $entry = $tmp_items[$hash];
+            $item = $tmp_items[$hash];
+            $entry = Entry::create();
+            $entry->hash = $hash;
+            $entry->feed_id = $feed->id;
+
             // Title
             $entry->title = $item->get_title();
             if (strlen($entry->title) > 255) {
