@@ -415,7 +415,7 @@ class CronController
     {
         if ($this->verbose === true) {
             echo implode("\t", array(
-                date('d/m/Y H:i:s'),
+                date('Y/m/d H:i:s'),
                 $str,
                 "\n"
             ));
