@@ -230,67 +230,66 @@ class CronController
 
         $items = $simplepie->get_items();
 
-        $new_entries_counter = 0;
-
+        $tmp_items = array();
+        $hashs = array();
         foreach ($items as $item) {
             $entry = Entry::create();
-
             $entry->hash = $item->get_id(true);
             $entry->feed_id = $feed->id;
-
-            if (!$entry->exists()) {
-
-                // Title
-                $entry->title = $item->get_title();
-                if (strlen($entry->title) > 255) {
-                    $entry->title = substr($entry->title, 0, 255);
-                }
-
-                // Permalink
-                $entry->permalink = htmlspecialchars_decode($item->get_permalink());
-                if (strlen($entry->permalink) > 255) {
-                    $entry->permalink = substr($entry->permalink, 0, 255);
-                }
-
-                // Content
-                $entry->content = $item->get_content();
-
-                // Date
-                $entry->date = $item->get_date('Y-m-d H:i:s');
-                if ($entry->date == null) {
-                    $entry->date = date('Y-m-d H:i:s');
-                }
-
-                // Categories
-                $categories = $item->get_categories();
-
-                if (!empty($categories)) {
-                    $entry_categories = array();
-
-                    foreach ($categories as $category) {
-                        $entry_categories[] = $category->get_label();
-                    }
-
-                    if (!empty($categories)) {
-                        $entry->categories = implode(',', $entry_categories);
-                    }
-                }
-
-                unset($categories, $entry_categories);
-
-                try {
-                    $entry->save();
-                } catch (\PDOException $e) {
-                    $this->verbose('PDO error: #'.$feed->id.' '.$e->getMessage());
-                }
-
-
-                $new_entries_counter++;
-            }
+            $tmp_items[$entry->hash] = $entry;
+            $hashs[] = $entry->hash;
         }
 
+        $hashs_to_add = Entry::getHashToAdd($hashs, $feed->id);
+
+        foreach ($hashs_to_add as $hash) {
+            $entry = $tmp_items[$hash];
+            // Title
+            $entry->title = $item->get_title();
+            if (strlen($entry->title) > 255) {
+                $entry->title = substr($entry->title, 0, 255);
+            }
+
+            // Permalink
+            $entry->permalink = htmlspecialchars_decode($item->get_permalink());
+            if (strlen($entry->permalink) > 255) {
+                $entry->permalink = substr($entry->permalink, 0, 255);
+            }
+
+            // Content
+            $entry->content = $item->get_content();
+
+            // Date
+            $entry->date = $item->get_date('Y-m-d H:i:s');
+            if ($entry->date == null) {
+                $entry->date = date('Y-m-d H:i:s');
+            }
+
+            // Categories
+            $categories = $item->get_categories();
+
+            if (!empty($categories)) {
+                $entry_categories = array();
+
+                foreach ($categories as $category) {
+                    $entry_categories[] = $category->get_label();
+                }
+
+                if (!empty($categories)) {
+                    $entry->categories = implode(',', $entry_categories);
+                }
+            }
+
+            unset($categories, $entry_categories);
+
+            try {
+                $entry->save();
+            } catch (\PDOException $e) {
+                $this->verbose('PDO error: #'.$feed->id.' '.$e->getMessage());
+            }
+        }
         // Activity detection
-        if ($new_entries_counter > 0) {
+        if (count($hashs_to_add)) {
             $feed->fetch_interval = 3;
         } else {
             if (($feed->fetch_interval * 1.5) <= 20) {

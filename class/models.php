@@ -175,4 +175,22 @@ class Entry extends ModelBase
 
         return $count > 0;
     }
+
+    /**
+     * Find items to add
+     */
+    public function getHashToAdd($hashs, $feed_id)
+    {
+        $hashs_to_remove = self::factory()
+                ->select('hash')
+                ->where_in('hash', $hashs)
+                ->where('feed_id', $feed_id)
+                ->findMany();
+        if ($hashs_to_remove != null) {
+            foreach ($hashs_to_remove as $entry) {
+                unset($hashs[array_search($entry->hash, $hashs)]);
+            }
+        }
+        return $hashs;
+    }
 }

@@ -89,7 +89,7 @@ class HttpClient
                 }
             }
             if (isset($header['Content-Encoding']) && $header['Content-Encoding']=="gzip") {
-                $html = gzinflate(substr($html, 10, -8));
+                $html = @gzinflate(substr($html, 10, -8));
             }
 
             $info = array(
