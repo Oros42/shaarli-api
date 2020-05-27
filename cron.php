@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?php
-error_reporting(0);
+//error_reporting(0);
 use Favicon\Favicon;
 declare(ticks = 1);
 function sig_handler($signo)
@@ -423,6 +423,30 @@ class CronController
             ));
         }
     }
+
+    /**
+     * Add feed
+     */
+    public function addFeed($argv)
+    {
+        $addFeed = array_keys($argv, '--add');
+        $addFeed = empty($add) ? array_keys($argv, '-a'):$add;
+        if (!empty($addFeed) && !empty($argv[$addFeed[0]+1])) { // add feed
+            $url = $argv[$addFeed[0]+1];
+            $out = array();
+            if (substr($url, 0, 4) == "http") {
+                $ShaarliApi = new ShaarliApi();
+                $count = $ShaarliApi->addFeeds(array($url), $out);
+            }
+            if (!empty($out[$url])) {
+                printf("%s %s %s\n", date('Y-m-d H:i:s'), $out[$url]["status"], $url);
+                if ($out[$url]["status"] == "add") {
+                    $this->fetch($out[$url]["feed"]);
+                }
+            }
+        }
+
+    }
 }
 
 function is_php_cli()
@@ -445,6 +469,7 @@ if (is_php_cli()) {
     if (in_array('--help', $argv) || in_array('-h', $argv)) {
         echo "php cron.php [Options]\n";
         echo "Options\n";
+        echo "-a <URL_RSS>, --add <URL_RSS> : add rss feed\n";
         echo "-c, --check   : check the database\n";
         echo "-d, --daemon  : run in daemon. Fetch all feeds in loop\n";
         echo "-h, --help    : this help\n";
@@ -458,6 +483,7 @@ if (is_php_cli()) {
         echo "php cron.php --sync --verbose\n";
         echo "php cron.php --daemon&\n";
         echo "php cron.php -d -v\n";
+        echo "php cron.php -a https://ecirtam.net/links/?do=rss\n";
         exit();
     }
 
@@ -491,6 +517,10 @@ if (is_php_cli()) {
         $controller = new CronController();
         $controller->verbose = true;
         $controller->check();
+    } elseif (in_array('--add', $argv) || in_array('-a', $argv)) { // add feed
+        $controller = new CronController();
+        $controller->verbose = true;
+        $controller->addFeed($argv);
     } else { // standard mode
         $controller = new CronController();
         $controller->verbose = $verbose;

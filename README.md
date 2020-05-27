@@ -89,7 +89,8 @@ server {
 $ php cron.php -h
 php cron.php [Options]
 Options
--c, --check   : check the DB
+-a <URL_RSS>, --add <URL_RSS> : add rss feed
+-c, --check   : check the database
 -d, --daemon  : run in daemon. Fetch all feeds in loop
 -h, --help    : this help
 -s, --sync    : synchronize the list of feeds
@@ -99,9 +100,10 @@ If no option, fetch 1 time all feeds.
 Examples :
 php cron.php --check
 php cron.php --verbose
-php cron.php -d -v
-php cron.php --daemon&
 php cron.php --sync --verbose
+php cron.php --daemon&
+php cron.php -d -v
+php cron.php -a https://ecirtam.net/links/?do=rss
 ```
 
 Check the database :  

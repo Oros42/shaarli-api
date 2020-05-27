@@ -526,7 +526,7 @@ class ShaarliApi
      * @param array urls
      * @return int Number of new feeds
      */
-    public function addFeeds($urls)
+    public function addFeeds($urls, &$out=null)
     {
         $count = 0;
         if (!empty($urls)) {
@@ -540,12 +540,29 @@ class ShaarliApi
                             if (strpos($url, $blacklisted) !== false) {
                                 // go to next url
                                 // and skip add
+                                if (is_array($out)) {
+                                    $out[$url] = array(
+                                        "status" => "blacklisted"
+                                    );
+                                }
                                 continue 2;
                             }
                         }
                     }
                     $feed->save();
                     $count++;
+                    if (is_array($out)) {
+                        $out[$url] = array(
+                            "status" => "add",
+                            "feed" => $feed
+                        );
+                    }
+                } else {
+                    if (is_array($out)) {
+                        $out[$url] = array(
+                            "status" => "exist"
+                        );
+                    }
                 }
             }
         }
