@@ -439,7 +439,7 @@ class CronController
                 $count = $ShaarliApi->addFeeds(array($url), $out);
             }
             if (!empty($out[$url])) {
-                $this->verbose("%s %s %s\n", date('Y-m-d H:i:s'), $out[$url]["status"], $url);
+                $this->verbose(printf("%s %s %s\n", date('Y-m-d H:i:s'), $out[$url]["status"], $url));
                 if ($out[$url]["status"] == "add") {
                     $this->fetch($out[$url]["feed"]);
                 }
