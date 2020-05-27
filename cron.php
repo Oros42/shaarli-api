@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?php
-//error_reporting(0);
+error_reporting(0);
 use Favicon\Favicon;
 declare(ticks = 1);
 function sig_handler($signo)
@@ -439,7 +439,7 @@ class CronController
                 $count = $ShaarliApi->addFeeds(array($url), $out);
             }
             if (!empty($out[$url])) {
-                printf("%s %s %s\n", date('Y-m-d H:i:s'), $out[$url]["status"], $url);
+                $this->verbose("%s %s %s\n", date('Y-m-d H:i:s'), $out[$url]["status"], $url);
                 if ($out[$url]["status"] == "add") {
                     $this->fetch($out[$url]["feed"]);
                 }
