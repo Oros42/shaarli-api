@@ -6,7 +6,7 @@ class HttpClient
         'Connection: close',
         'Accept: text/plain,text/html',
         'User-Agent: '.USER_AGENT,
-        'Accept-Encoding: gzip,deflate,br',
+        'Accept-Encoding: gzip',
     );
 
     /**
