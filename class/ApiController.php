@@ -1,4 +1,5 @@
 <?php
+define("API_VERSION", "2.0");
 
 class ApiController extends AbstractApiController
 {
@@ -38,6 +39,7 @@ class ApiController extends AbstractApiController
                 array(
                     'success' => 1,
                     'api' => API_SOURCE_CODE,
+                    'api-version' => API_VERSION,
                     'actions' => $actions
                 )
             );
