@@ -5,6 +5,8 @@
 * MySQL or Sqlite3
 * PDO
 * Apache RewriteEngine or Nginx
+* php-xml
+* (php-mf2)
 
 ## Installation
 ```bash

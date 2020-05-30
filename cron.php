@@ -238,11 +238,12 @@ class CronController
             $hashs[] = $hash;
         }
 
-        $hashs_to_add = Entry::getHashToAdd($hashs, $feed->id);
+        $Entry = new Entry();
+        $hashs_to_add = $Entry->getHashToAdd($hashs, $feed->id);
 
         foreach ($hashs_to_add as $hash) {
             $item = $tmp_items[$hash];
-            $entry = Entry::create();
+            $entry = $Entry->create();
             $entry->hash = $hash;
             $entry->feed_id = $feed->id;
 
