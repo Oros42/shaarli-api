@@ -168,4 +168,26 @@ abstract class AbstractApiController
         // flush
         $xml->flush();
     }
+
+
+    /**
+     * Create HTML formated file
+     */
+    protected function outputHTML($feed)
+    {
+        header('Content-type: application/x-xml; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="bookmarks.html"');
+        echo "<!DOCTYPE NETSCAPE-Bookmark-file-1>\n";
+        echo "<META HTTP-EQUIV='Content-Type' CONTENT='text/html; charset=UTF-8'>\n";
+        echo "<TITLE>".$feed['title']."</TITLE>\n";
+        echo "<H1>Shaarli export of public bookmarks on " . date("D, d M Y H:i:s T") . "</H1>\n";
+        echo "<DL><p>\n";
+        foreach ($feed['entries'] as $entrie) {
+            echo "<DT><A HREF='".$entrie['permalink']."' ADD_DATE='".strtotime($entrie['created_at'])."' PRIVATE='0' TAGS='".$entrie['categories']."'>".$entrie['title']."</A>\n";
+            if (!empty($entrie['content'])) {
+                echo "<DD>".str_replace("<br>", "", $entrie['content']);
+            }
+        }
+        echo "</DL><p>\n";
+    }
 }

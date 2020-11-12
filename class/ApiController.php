@@ -13,7 +13,7 @@ class ApiController extends AbstractApiController
         // Les actions disponible
         // array(ACTION=>array(EXAMPLE_URL))
         $actions = array(
-            'feed' => array('feed?id=1&pretty=1'),
+            'feed' => array('feed?id=1&pretty=1', 'feed?id=1&full=1', 'feed?id=1&full=1&formats=html'),
             'feeds' => array('feeds?full=1&pretty=1','feeds?disabled=1&pretty=1','feeds?error=1&pretty=1','feeds?pretty=1'),
             'latest' => array('latest?pretty=1','latest?format=rss'),
             'top' => array('top?interval=48h&pretty=1'),
@@ -53,6 +53,7 @@ class ApiController extends AbstractApiController
             'json',
             'rss',
             'opml',
+            'html'
         );
 
         // Default format: json
@@ -123,6 +124,15 @@ class ApiController extends AbstractApiController
         elseif ($format == 'opml') {
             if ($action == 'feeds') {
                 $this->outputOPML($results);
+                exit();
+            } else {
+                $this->error('Bad request (OPML format unavailable for this action)');
+            }
+        }
+        // HTML
+        elseif ($format == 'html') {
+            if ($action == 'feed') {
+                $this->outputHTML($results);
                 exit();
             } else {
                 $this->error('Bad request (OPML format unavailable for this action)');

@@ -20,11 +20,18 @@ class ShaarliApi
             if ($feed) {
                 $feed = $feed[0];
 
-                $entries = Entry::factory()
-                    ->where('feed_id', $feed['id'])
-                    ->order_by_desc('date')
-                    ->limit(100)
-                ;
+                if (!empty($arguments['full']) && $arguments['full'] == 1) {
+                    $entries = Entry::factory()
+                        ->where('feed_id', $feed['id'])
+                        ->order_by_desc('date')
+                    ; 
+                } else {
+                    $entries = Entry::factory()
+                        ->where('feed_id', $feed['id'])
+                        ->order_by_desc('date')
+                        ->limit(100)
+                    ;                   
+                }
 
                 $entries = $entries->findArray();
 

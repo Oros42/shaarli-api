@@ -145,12 +145,14 @@ https://example.com/syncfeeds
 * Run cron the finalize the update: `php cron.php --verbose`.
 
 ## API Usage
-* /feeds La liste des shaarlis
-* /latest Les derniers billets
-* /top Les liens les plus partagés
-* /search Rechercher dans les billets
-* /discussion Rechercher une discussion
-* /syncfeeds Synchroniser la liste des shaarlis
+* /             Affiche l'aide
+* /feed         Recherche d'un shaarli
+* /feeds        La liste des shaarlis
+* /latest       Les derniers billets
+* /top          Les liens les plus partagés
+* /search       Rechercher dans les billets
+* /discussion   Rechercher une discussion
+* /syncfeeds    Synchroniser la liste des shaarlis
 
 ## Options
 * &format=json
@@ -165,3 +167,4 @@ https://example.com/syncfeeds
 * Obtenir le top des liens partagés depuis 48h: https://example.com/shaarli-api/top?interval=48h&pretty=1
 * Faire une recherche sur php: https://example.com/shaarli-api/search?q=php&pretty=1
 * Rechercher une discution sur un lien: https://example.com/shaarli-api/discussion?url=https://example.com/shaarli-river/index.php&pretty=1
+* Récupétation du backup d'un shaarlis pour le réimporter: https://example.com/shaarli-api/feed?id=1&format=html&full=1
