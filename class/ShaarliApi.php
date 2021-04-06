@@ -73,6 +73,12 @@ class ShaarliApi
             $feeds->where('enabled', 1);
         }
 
+        if (isset($arguments['dead']) && $arguments['dead'] == 0) {
+            $feeds->where('dead', 0);
+        }elseif (isset($arguments['dead']) && $arguments['dead'] == 1) {
+            $feeds->where('dead', 1);
+        }
+
         // Filter by feed ids
         if (isset($arguments['ids']) && !empty($arguments['ids']) && is_array($arguments['ids'])) {
             foreach ($arguments['ids'] as $id) {
